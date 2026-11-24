@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercearia Nogueira - JC Pirates Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pirate: {
+                            red: '#E53E3E',
+                            darkRed: '#9B2C2C',
+                            dark: '#1A202C',
+                            slate: '#2D3748',
+                            gold: '#D69E2E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilização da barra de rolagem customizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e53e3e;
+            border-radius: 4px;
+        }
+        /* Touch target adjustments */
+        .btn-touch {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen pb-20 md:pb-6 antialiased selection:bg-pirate-red selection:text-white">
+
+    <!-- BARRA SUPERIOR / HEADER -->
+    <header class="sticky top-0 z-40 bg-pirate-dark/95 backdrop-blur-md border-b border-gray-800 shadow-xl">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between gap-3">
+                
+                <!-- Logo & Nome da Loja -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="filterCategory('all')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pirate-red to-black flex items-center justify-center shadow-lg border border-red-500/30 text-white text-xl">
+                        <i class="fa-solid fa-skull-crossbones"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-extrabold text-lg text-white leading-tight tracking-tight">Mercearia Nogueira</h1>
+                            <span class="bg-pirate-red/20 text-pirate-red border border-pirate-red/30 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest">JC Pirates</span>
+                        </div>
+                        <p class="text-xs text-gray-400 flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span> Aberto para Entregas & Retiradas
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Ações do Header -->
+                <div class="flex items-center gap-2">
+                    <!-- Botão do Modo Gerencial (Caixa) -->
+                    <button onclick="toggleAdminModal()" title="Painel Gerencial do Caixa" class="btn-touch px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition border border-gray-700">
+                        <i class="fa-solid fa-user-shield text-pirate-gold"></i>
+                        <span class="hidden md:inline">Modo Caixa</span>
+                    </button>
+
+                    <!-- Ícone do Carrinho (Desktop & Tablet) -->
+                    <button onclick="toggleCartDrawer()" class="btn-touch px-3.5 py-2 bg-pirate-red hover:bg-red-700 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-red-900/30 relative">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span class="hidden sm:inline">Carrinho</span>
+                        <span id="cart-badge-header" class="bg-white text-pirate-red font-black text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BARRA DE PESQUISA -->
+            <div class="mt-3 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Pesquisar por nome do produto ou EAN (ex: Tododia, Essencial, Cerveja...)" 
+                       class="w-full bg-gray-800/90 border border-gray-700 focus:border-pirate-red rounded-xl py-2.5 left-0 pl-10 pr-10 text-sm text-gray-100 placeholder-gray-400 focus:outline-none transition shadow-inner">
+                <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- CARROSSEL DE CATEGORIAS -->
+        <div class="border-t border-gray-800/80 bg-gray-900/50">
+            <div class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto hide-scrollbar scroll-smooth" id="categories-container">
+                <!-- Categorias injetadas via JS -->
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-6xl mx-auto px-4 pt-5 pb-12">
+        
+        <!-- BANNER PROMO / AVISO DE CONVENIÊNCIA -->
+        <div class="bg-gradient-to-r from-gray-800 via-pirate-slate to-gray-800 border border-gray-700 rounded-2xl p-4 md:p-6 mb-6 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 opacity-10 text-8xl text-white pointer-events-none">
+                <i class="fa-solid fa-skull-crossbones"></i>
+            </div>
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 mb-2">
+                        <i class="fa-solid fa-credit-card"></i> Aceitamos Cartões Benefício!
+                    </span>
+                    <h2 class="text-xl md:text-2xl font-black text-white">Conveniência, Cosméticos e Bebidas Geladas</h2>
+                    <p class="text-sm text-gray-300 mt-1 max-w-2xl">
+                        Pague com <strong>Pluxee, Ticket Flex, Ticket Alimentação, VR Pague</strong>, PIX ou Cartão. Retire no balcão ou peça Delivery via WhatsApp.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-900/60 p-2.5 rounded-xl border border-gray-700/60 text-xs">
+                    <div class="text-emerald-400 text-lg"><i class="fa-brands fa-whatsapp"></i></div>
+                    <div>
+                        <div class="text-gray-400 font-medium">Pedidos Diretos no Zap</div>
+                        <div class="font-bold text-white">(41) 99999-8888</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TÍTULO DA SEÇÃO ATUAL -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+                <h3 id="section-title" class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
+                    Todos os Produtos
+                </h3>
+                <span id="product-count-badge" class="bg-gray-800 text-gray-400 border border-gray-700 text-xs px-2 py-0.5 rounded-full font-medium">0 itens</span>
+            </div>
+            
+            <select id="sort-select" onchange="handleSort()" class="bg-gray-800 border border-gray-700 text-xs text-gray-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-pirate-red">
+                <option value="default">Relevância</option>
+                <option value="price-asc">Menor Preço</option>
+                <option value="price-desc">Maior Preço</option>
+                <option value="name">Nome (A-Z)</option>
+            </select>
+        </div>
+
+        <!-- GRID DE PRODUTOS -->
+        <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 md:gap-4">
+            <!-- Produtos renderizados via JS -->
+        </div>
+
+        <!-- ESTADO DE NENHUM PRODUTO ENCONTRADO -->
+        <div id="empty-state" class="hidden text-center py-16 bg-gray-800/40 rounded-2xl border border-gray-800">
+            <div class="w-16 h-16 bg-gray-800 text-gray-500 rounded-full flex items-center justify-center mx-auto text-2xl mb-3">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h4 class="text-lg font-bold text-gray-200">Nenhum produto encontrado</h4>
+            <p class="text-sm text-gray-400 mt-1 max-w-sm mx-auto">Tente alterar os termos da busca ou selecionar outra categoria no menu superior.</p>
+            <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-pirate-red text-white text-xs font-bold rounded-xl hover:bg-red-700 transition">
+                Limpar Filtros
+            </button>
+        </div>
+    </main>
+
+    <!-- BARRA FIXA MOBILE DO CARRINHO -->
+    <div class="fixed bottom-0 left-0 right-0 z-30 bg-gray-900/95 border-t border-gray-800 backdrop-blur-md px-4 py-3 md:hidden shadow-2xl">
+        <div class="flex items-center justify-between gap-3 max-w-md mx-auto">
+            <div>
+                <span class="text-[11px] text-gray-400 block font-medium">Total do Pedido</span>
+                <span id="mobile-cart-total" class="text-lg font-extrabold text-emerald-400">R$ 0,00</span>
+            </div>
+            <button onclick="toggleCartDrawer()" class="flex-1 btn-touch bg-pirate-red hover:bg-red-700 active:scale-95 text-white font-bold rounded-xl px-4 py-2.5 flex items-center justify-center gap-2 shadow-lg shadow-red-900/40 transition">
+                <i class="fa-solid fa-basket-shopping"></i>
+                <span>Ver Carrinho</span>
+                <span id="mobile-cart-badge" class="bg-white text-pirate-red text-xs px-2 py-0.5 rounded-full font-black">0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- DRAWER / MODAL DO CARRINHO DE COMPRAS -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+        <!-- Backdrop -->
+        <div id="cart-backdrop" onclick="toggleCartDrawer()" class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Painel Lateral -->
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-gray-900 border-l border-gray-800 shadow-2xl flex flex-col pointer-events-auto transform translate-x-full transition-transform duration-300 ease-out" id="cart-panel">
+            
+            <!-- Topo do Carrinho -->
+            <div class="p-4 bg-gray-800/90 border-b border-gray-700/80 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-pirate-red text-white flex items-center justify-center font-bold text-sm">
+                        <i class="fa-solid fa-shopping-bag"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base leading-none">Meu Carrinho</h3>
+                        <span id="cart-items-count" class="text-xs text-gray-400">0 itens adicionados</span>
+                    </div>
+                </div>
+                <button onclick="toggleCartDrawer()" class="btn-touch text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Lista de Itens do Carrinho -->
+            <div id="cart-items-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Itens injetados via JS -->
+            </div>
+
+            <!-- Seção de Fechamento do Pedido (Formulário & Pagamento) -->
+            <div class="p-4 bg-gray-800/90 border-t border-gray-700 space-y-3">
+                
+                <!-- Opções de Entrega -->
+                <div>
+                    <label class="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-1.5">
+                        <i class="fa-solid fa-truck-ramp-box text-pirate-gold"></i> Forma de Envio
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="delivery-option-label border border-pirate-red bg-pirate-red/10 text-white rounded-xl p-2 text-center text-xs font-bold cursor-pointer transition flex items-center justify-center gap-1.5">
+                            <input type="radio" name="delivery_type" value="delivery" checked onchange="updateDeliveryOption()" class="hidden">
+                            <i class="fa-solid fa-motorcycle"></i> Delivery (Entrega)
+                        </label>
+                        <label class="delivery-option-label border border-gray-700 bg-gray-800 text-gray-400 rounded-xl p-2 text-center text-xs font-bold cursor-pointer transition flex items-center justify-center gap-1.5">
+                            <input type="radio" name="delivery_type" value="pickup" onchange="updateDeliveryOption()" class="hidden">
+                            <i class="fa-solid fa-store"></i> Retirar na Loja
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Campo Endereço (Visível só se Delivery) -->
+                <div id="address-container">
+                    <input type="text" id="delivery-address" placeholder="Rua, Número, Bairro e Ponto de Referência" 
+                           class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pirate-red">
+                </div>
+
+                <!-- Forma de Pagamento -->
+                <div>
+                    <label class="text-xs font-bold text-gray-300 uppercase tracking-wider block mb-1.5">
+                        <i class="fa-solid fa-wallet text-emerald-400"></i> Forma de Pagamento
+                    </label>
+                    <select id="payment-method" onchange="handlePaymentChange()" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white font-semibold focus:outline-none focus:border-pirate-red">
+                        <option value="" disabled selected>Selecione como deseja pagar...</option>
+                        <optgroup label="💳 Cartões de Benefício (Aceito no Mercado)">
+                            <option value="Pluxee Alimentação">Pluxee Alimentação (Sodexo)</option>
+                            <option value="Ticket Flex">Ticket Flex</option>
+                            <option value="Ticket Alimentação">Ticket Alimentação</option>
+                            <option value="VR Pague">VR Pague (VR Benefícios)</option>
+                        </optgroup>
+                        <optgroup label="💵 Outras Formas">
+                            <option value="PIX (Na Entrega/Online)">PIX (Na entrega ou online)</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito (Maquininha)</option>
+                            <option value="Cartão de Débito">Cartão de Débito (Maquininha)</option>
+                            <option value="Dinheiro">Dinheiro (Espécie)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Troco se Dinheiro -->
+                <div id="change-container" class="hidden">
+                    <input type="text" id="cash-change" placeholder="Precisa de troco para quanto? (Ex: R$ 50)" 
+                           class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-pirate-red">
+                </div>
+
+                <!-- Resumo Financeiro -->
+                <div class="bg-gray-900/80 p-3 rounded-xl border border-gray-700/60 space-y-1 text-xs">
+                    <div class="flex justify-between text-gray-400">
+                        <span>Subtotal dos Itens:</span>
+                        <span id="cart-subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400" id="delivery-fee-row">
+                        <span>Taxa de Entrega:</span>
+                        <span id="cart-delivery-fee" class="text-amber-400">R$ 5,00</span>
+                    </div>
+                    <div class="flex justify-between font-extrabold text-sm text-white pt-1.5 border-t border-gray-800">
+                        <span>TOTAL COMPLETO:</span>
+                        <span id="cart-final-total" class="text-emerald-400 text-base">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <!-- Botão Enviar Pedido no WhatsApp -->
+                <button onclick="finishOrder()" class="w-full btn-touch bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-extrabold rounded-xl py-3 px-4 flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition text-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Enviar Pedido para a Mercearia</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL GERENCIAL / MODO CAIXA (ADMIN) -->
+    <div id="admin-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            <!-- Topo do Modal -->
+            <div class="p-4 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-pirate-gold">
+                    <i class="fa-solid fa-cash-register text-xl"></i>
+                    <h3 class="font-bold text-white text-base">Painel do Caixa & Gerenciamento</h3>
+                </div>
+                <button onclick="toggleAdminModal()" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Abas do Gerenciador -->
+            <div class="flex border-b border-gray-800 bg-gray-950 text-xs font-bold">
+                <button onclick="switchAdminTab('products')" id="tab-btn-products" class="flex-1 py-3 px-4 text-pirate-red border-b-2 border-pirate-red flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-boxes-stacked"></i> Alterar Preços / Estoque
+                </button>
+                <button onclick="switchAdminTab('orders')" id="tab-btn-orders" class="flex-1 py-3 px-4 text-gray-400 hover:text-gray-200 flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-receipt"></i> Pedidos Recentes Simulado
+                </button>
+            </div>
+
+            <!-- Conteúdo Aba Produtos -->
+            <div id="admin-tab-products" class="p-4 flex-1 overflow-y-auto space-y-3">
+                <p class="text-xs text-gray-400 mb-2">Edite rapidamente os valores e a disponibilidade dos produtos para os clientes:</p>
+                <div id="admin-products-list" class="space-y-2">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <!-- Conteúdo Aba Pedidos Simulado -->
+            <div id="admin-tab-orders" class="p-4 flex-1 overflow-y-auto space-y-3 hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-xs text-gray-400">Histórico de simulações de vendas recebidas:</p>
+                    <button onclick="clearSimulatedOrders()" class="text-[11px] text-pirate-red hover:underline font-bold">Limpar Histórico</button>
+                </div>
+                <div id="admin-orders-list" class="space-y-3">
+                    <!-- Gerado via JS -->
+                </div>
+            </div>
+
+            <div class="p-3 bg-gray-800 border-t border-gray-700 text-right">
+                <button onclick="toggleAdminModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl text-xs transition">
+                    Fechar Painel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICAÇÃO TOAST -->
+    <div id="toast" class="fixed top-20 right-4 z-50 transform translate-x-72 opacity-0 transition-all duration-300 pointer-events-none bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-bold border border-emerald-400/40">
+        <i class="fa-solid fa-circle-check text-lg"></i>
+        <span id="toast-message">Produto adicionado ao carrinho!</span>
+    </div>
+
+    <!-- JAVASCRIPT PRINCIPAL -->
+    <script>
+        // =========================================================================
+        // BANCO DE DADOS DE PRODUTOS INICIAIS (LOJA JC PIRATES / MERCEARIA NOGUEIRA)
+        // =========================================================================
+        const INITIAL_PRODUCTS = [
+            // COSMÉTICOS & CUIDADOS (NATURA, TODODIA, ESSENCIAL, LUNA)
+            {
+                id: 'nat-01',
+                name: 'Essencial Exclusivo Feminino 100ml',
+                category: 'cosmeticos',
+                price: 29.10,
+                originalPrice: 35.00,
+                ean: '7908240898186',
+                icon: 'fa-spray-can-sparkles',
+                color: 'from-pink-600 to-rose-950',
+                badge: 'Natura Premium',
+                inStock: true
+            },
+            {
+                id: 'nat-02',
+                name: 'Deo Corporal Essencial Sentir Masc 100ml',
+                category: 'cosmeticos',
+                price: 29.10,
+                originalPrice: 34.00,
+                ean: '7909883275235',
+                icon: 'fa-bottle-droplet',
+                color: 'from-amber-700 to-stone-900',
+                badge: 'Mais Vendido',
+                inStock: true
+            },
+            {
+                id: 'nat-03',
+                name: 'Sabonete Tododia Ameixa e Baunilha (5x90g)',
+                category: 'cosmeticos',
+                price: 23.93,
+                originalPrice: 28.00,
+                ean: '7908240850001',
+                icon: 'fa-soap',
+                color: 'from-purple-600 to-indigo-950',
+                badge: '5 Unidades',
+                inStock: true
+            },
+            {
+                id: 'nat-04',
+                name: 'Sabonete Tododia Manga Rosa & Água de Coco (5x90g)',
+                category: 'cosmeticos',
+                price: 23.93,
+                originalPrice: 28.00,
+                ean: '7908240860077',
+                icon: 'fa-soap',
+                color: 'from-orange-500 to-amber-900',
+                badge: '5 Unidades',
+                inStock: true
+            },
+            {
+                id: 'nat-05',
+                name: 'Sabonete Tododia Morango e Baunilha (5x90g)',
+                category: 'cosmeticos',
+                price: 23.93,
+                originalPrice: 28.00,
+                ean: '7908240850002',
+                icon: 'fa-soap',
+                color: 'from-red-500 to-rose-950',
+                badge: '5 Unidades',
+                inStock: true
+            },
+            {
+                id: 'nat-06',
+                name: 'Desodorante Roll-on Tododia Cereja e Avelã',
+                category: 'cosmeticos',
+                price: 11.91,
+                originalPrice: 15.00,
+                ean: '7908240850003',
+                icon: 'fa-shield-halved',
+                color: 'from-rose-700 to-gray-900',
+                badge: 'Proteção 48h',
+                inStock: true
+            },
+            {
+                id: 'nat-07',
+                name: 'Hidratante Tododia Cereja e Avelã 400ml',
+                category: 'cosmeticos',
+                price: 38.92,
+                originalPrice: 45.00,
+                ean: '7908240850004',
+                icon: 'fa-pump-soap',
+                color: 'from-pink-500 to-purple-900',
+                badge: 'Pele Macia',
+                inStock: true
+            },
+            {
+                id: 'nat-08',
+                name: 'Body Splash Tododia Flor de Lis 200ml',
+                category: 'cosmeticos',
+                price: 51.28,
+                originalPrice: 59.90,
+                ean: '7908240850005',
+                icon: 'fa-wind',
+                color: 'from-sky-500 to-blue-900',
+                badge: 'Perfumado',
+                inStock: true
+            },
+
+            // BEBIDAS (CERVEJAS, REFRIGERANTES, REFRIGERANTES E GELADAS)
+            {
+                id: 'beb-01',
+                name: 'Cerveja Brahma Chopp Lata 350ml (Gelada)',
+                category: 'bebidas',
+                price: 4.50,
+                originalPrice: 5.00,
+                ean: '7891149101111',
+                icon: 'fa-beer-mug-empty',
+                color: 'from-red-600 to-amber-900',
+                badge: 'Trincando',
+                inStock: true
+            },
+            {
+                id: 'beb-02',
+                name: 'Cerveja Heineken Long Neck 330ml (Gelada)',
+                category: 'bebidas',
+                price: 7.99,
+                originalPrice: 8.90,
+                ean: '7891149102222',
+                icon: 'fa-bottle-water',
+                color: 'from-emerald-600 to-green-950',
+                badge: 'Premium',
+                inStock: true
+            },
+            {
+                id: 'beb-03',
+                name: 'Refrigerante Coca-Cola 2 Litros',
+                category: 'bebidas',
+                price: 11.50,
+                originalPrice: 12.90,
+                ean: '7894900011517',
+                icon: 'fa-wine-bottle',
+                color: 'from-red-700 to-gray-950',
+                badge: 'Familia',
+                inStock: true
+            },
+            {
+                id: 'beb-04',
+                name: 'Guaraná Antarctica 2 Litros (Gelado)',
+                category: 'bebidas',
+                price: 9.90,
+                originalPrice: 11.00,
+                ean: '7891000100103',
+                icon: 'fa-bottle-droplet',
+                color: 'from-green-600 to-amber-950',
+                badge: 'Gelado',
+                inStock: true
+            },
+            {
+                id: 'beb-05',
+                name: 'Suco Del Valle Uva 1 Litro',
+                category: 'bebidas',
+                price: 7.50,
+                originalPrice: 8.50,
+                ean: '7894900700015',
+                icon: 'fa-glass-water-droplet',
+                color: 'from-purple-700 to-slate-900',
+                badge: '100% Sabor',
+                inStock: true
+            },
+
+            // MERCEARIA & ALIMENTOS
+            {
+                id: 'merc-01',
+                name: 'Café Melitta Tradicional 500g',
+                category: 'mercearia',
+                price: 18.90,
+                originalPrice: 21.00,
+                ean: '7891021000112',
+                icon: 'fa-mug-hot',
+                color: 'from-amber-800 to-stone-900',
+                badge: 'Despensa',
+                inStock: true
+            },
+            {
+                id: 'merc-02',
+                name: 'Açúcar Refinado União 1kg',
+                category: 'mercearia',
+                price: 4.80,
+                originalPrice: 5.50,
+                ean: '7896017200011',
+                icon: 'fa-cubes-stacked',
+                color: 'from-cyan-700 to-slate-900',
+                badge: 'Básico',
+                inStock: true
+            },
+            {
+                id: 'merc-03',
+                name: 'Arroz Tipo 1 Camil 5kg',
+                category: 'mercearia',
+                price: 28.90,
+                originalPrice: 32.00,
+                ean: '7896006700058',
+                icon: 'fa-bowl-rice',
+                color: 'from-stone-600 to-stone-900',
+                badge: 'Essencial',
+                inStock: true
+            },
+            {
+                id: 'merc-04',
+                name: 'Biscoito Recheado Passatempo 130g',
+                category: 'mercearia',
+                price: 3.50,
+                originalPrice: 4.20,
+                ean: '7891000054321',
+                icon: 'fa-cookie',
+                color: 'from-blue-600 to-amber-900',
+                badge: 'Lanche',
+                inStock: true
+            },
+            {
+                id: 'merc-05',
+                name: 'Snack Batata Pringles Original 114g',
+                category: 'mercearia',
+                price: 12.90,
+                originalPrice: 14.90,
+                ean: '7891000998877',
+                icon: 'fa-box',
+                color: 'from-red-600 to-yellow-600',
+                badge: 'Petisco',
+                inStock: true
+            },
+
+            // SERVIÇOS & INFORMÁTICA
+            {
+                id: 'serv-01',
+                name: 'Impressão / Cópias Xerox (Por folha A4)',
+                category: 'servicos',
+                price: 0.75,
+                originalPrice: 1.00,
+                ean: 'SERVICO001',
+                icon: 'fa-print',
+                color: 'from-blue-600 to-slate-900',
+                badge: 'Rápido',
+                inStock: true
+            },
+            {
+                id: 'serv-02',
+                name: 'Cabo USB Tipo-C Reforçado para Celular',
+                category: 'servicos',
+                price: 25.00,
+                originalPrice: 30.00,
+                ean: 'SERVICO002',
+                icon: 'fa-bolt',
+                color: 'from-amber-600 to-gray-900',
+                badge: 'Acessório',
+                inStock: true
+            },
+            {
+                id: 'serv-03',
+                name: 'Envelope Médio para Documentos (Papel Pardo)',
+                category: 'servicos',
+                price: 4.52,
+                originalPrice: 5.00,
+                ean: 'SERVICO003',
+                icon: 'fa-envelope-open-text',
+                color: 'from-yellow-700 to-stone-900',
+                badge: 'Papelaria',
+                inStock: true
+            }
+        ];
+
+        // CATEGORIAS DISPONÍVEIS
+        const CATEGORIES = [
+            { id: 'all', name: 'Todos os Itens', icon: 'fa-store' },
+            { id: 'cosmeticos', name: 'Cosméticos Natura', icon: 'fa-spa' },
+            { id: 'bebidas', name: 'Bebidas & Geladas', icon: 'fa-beer-mug-empty' },
+            { id: 'mercearia', name: 'Mercearia & Alimentos', icon: 'fa-basket-shopping' },
+            { id: 'servicos', name: 'Xerox & Informática', icon: 'fa-print' }
+        ];
+
+        // ESTADO GLOBAL DO APLICATIVO
+        let products = JSON.parse(localStorage.getItem('jc_products')) || INITIAL_PRODUCTS;
+        let cart = JSON.parse(localStorage.getItem('jc_cart')) || [];
+        let simulatedOrders = JSON.parse(localStorage.getItem('jc_orders')) || [
+            {
+                id: 'ORD-9842',
+                date: 'Hoje às 14:20',
+                client: 'Cliente Exemplo (Vila Nogueira)',
+                total: 'R$ 64,91',
+                payment: 'Pluxee Alimentação',
+                items: '1x Essencial Exclusivo Fem, 1x Sabonete Ameixa',
+                status: 'Concluído'
+            }
+        ];
+        
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let currentSort = 'default';
+
+        // =========================================================================
+        // INICIALIZAÇÃO
+        // =========================================================================
+        window.onload = function() {
+            renderCategories();
+            renderProducts();
+            updateCartUI();
+            renderAdminProducts();
+            renderAdminOrders();
+        };
+
+        function saveData() {
+            localStorage.setItem('jc_products', JSON.stringify(products));
+            localStorage.setItem('jc_cart', JSON.stringify(cart));
+            localStorage.setItem('jc_orders', JSON.stringify(simulatedOrders));
+        }
+
+        // =========================================================================
+        // RENDERIZAÇÃO DAS CATEGORIAS
+        // =========================================================================
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = CATEGORIES.map(cat => {
+                const isActive = cat.id === currentCategory;
+                const activeClass = isActive 
+                    ? 'bg-pirate-red text-white font-bold border-pirate-red shadow-lg shadow-red-900/40' 
+                    : 'bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-600 hover:text-white font-medium';
+                
+                return `
+                    <button onclick="filterCategory('${cat.id}')" 
+                            class="px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 border transition shrink-0 whitespace-nowrap ${activeClass}">
+                        <i class="fa-solid ${cat.icon}"></i>
+                        <span>${cat.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(catId) {
+            currentCategory = catId;
+            renderCategories();
+            renderProducts();
+            
+            // Atualizar título da seção
+            const catObj = CATEGORIES.find(c => c.id === catId);
+            document.getElementById('section-title').innerHTML = `
+                <i class="fa-solid ${catObj.icon} text-pirate-red"></i> ${catObj.name}
+            `;
+        }
+
+        // =========================================================================
+        // RENDERIZAÇÃO E FILTRO DE PRODUTOS
+        // =========================================================================
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Filtragem por Categoria
+            let filtered = currentCategory === 'all' 
+                ? [...products] 
+                : products.filter(p => p.category === currentCategory);
+
+            // Filtragem por Busca (Nome ou EAN)
+            if (searchQuery.trim() !== '') {
+                const q = searchQuery.toLowerCase().trim();
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(q) || 
+                    (p.ean && p.ean.toLowerCase().includes(q))
+                );
+            }
+
+            // Ordenação
+            if (currentSort === 'price-asc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'price-desc') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (currentSort === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            // Atualizar Badge de Quantidade
+            document.getElementById('product-count-badge').innerText = `${filtered.length} itens`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            // HTML dos cards
+            grid.innerHTML = filtered.map(product => {
+                const cartItem = cart.find(item => item.id === product.id);
+                const qtyInCart = cartItem ? cartItem.qty : 0;
+
+                return `
+                    <div class="bg-gray-800/90 border border-gray-700/80 hover:border-pirate-red/60 rounded-2xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 shadow-md hover:shadow-xl group relative overflow-hidden">
+                        
+                        <!-- Badge promocional -->
+                        ${product.badge ? `
+                            <span class="absolute top-2 left-2 z-10 bg-gradient-to-r from-pirate-red to-red-700 text-white font-extrabold text-[9px] px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
+                                ${product.badge}
+                            </span>
+                        ` : ''}
+
+                        <div>
+                            <!-- Imagem fictícia com gradiente e ícone estilizado -->
+                            <div class="w-full h-32 rounded-xl bg-gradient-to-br ${product.color || 'from-gray-700 to-gray-900'} flex items-center justify-center text-4xl text-white/90 shadow-inner mb-3 relative group-hover:scale-105 transition-transform">
+                                <i class="fa-solid ${product.icon}"></i>
+                                <span class="absolute bottom-1 right-2 text-[10px] font-mono text-gray-300 opacity-60">EAN: ${product.ean.slice(-5)}</span>
+                            </div>
+
+                            <!-- Nome & EAN -->
+                            <h4 class="font-bold text-xs text-gray-100 line-clamp-2 leading-snug group-hover:text-pirate-red transition-colors min-h-[32px]">
+                                ${product.name}
+                            </h4>
+                            <p class="text-[10px] text-gray-400 mt-1">Cód: <span class="font-mono text-gray-300">${product.ean}</span></p>
+                        </div>
+
+                        <!-- Preço & Botão Adicionar -->
+                        <div class="mt-3 pt-2 border-t border-gray-700/60">
+                            <div class="flex items-baseline gap-1.5 mb-2">
+                                <span class="text-base font-extrabold text-emerald-400">R$ ${product.price.toFixed(2).replace('.', ',')}</span>
+                                ${product.originalPrice ? `
+                                    <span class="text-[10px] text-gray-500 line-through">R$ ${product.originalPrice.toFixed(2).replace('.', ',')}</span>
+                                ` : ''}
+                            </div>
+
+                            ${qtyInCart > 0 ? `
+                                <div class="flex items-center justify-between bg-gray-900 border border-pirate-red rounded-xl p-1">
+                                    <button onclick="updateCartQty('${product.id}', -1)" class="w-7 h-7 bg-gray-800 hover:bg-pirate-red text-white rounded-lg text-xs font-bold transition flex items-center justify-center">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </button>
+                                    <span class="font-extrabold text-xs text-white px-2">${qtyInCart}</span>
+                                    <button onclick="updateCartQty('${product.id}', 1)" class="w-7 h-7 bg-pirate-red hover:bg-red-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <button onclick="addToCart('${product.id}')" 
+                                        class="w-full btn-touch bg-gray-700 hover:bg-pirate-red active:scale-95 text-white font-bold rounded-xl py-2 px-3 text-xs flex items-center justify-center gap-1.5 transition shadow">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                    <span>Adicionar</span>
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================================
+        // PESQUISA E ORDENAÇÃO
+        // =========================================================================
+        function handleSearch() {
+            const input = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+            searchQuery = input.value;
+
+            if (searchQuery.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderProducts();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            searchQuery = '';
+            renderProducts();
+        }
+
+        function handleSort() {
+            currentSort = document.getElementById('sort-select').value;
+            renderProducts();
+        }
+
+        function resetFilters() {
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            filterCategory('all');
+        }
+
+        // =========================================================================
+        // LÓGICA DO CARRINHO DE COMPRAS
+        // =========================================================================
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+
+            saveData();
+            updateCartUI();
+            renderProducts();
+            showToast(`"${product.name.substring(0, 20)}..." no carrinho!`);
+        }
+
+        function updateCartQty(productId, delta) {
+            const index = cart.findIndex(item => item.id === productId);
+            if (index !== -1) {
+                cart[index].qty += delta;
+                if (cart[index].qty <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            saveData();
+            updateCartUI();
+            renderProducts();
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            
+            // Atualiza Badges
+            document.getElementById('cart-badge-header').innerText = totalQty;
+            document.getElementById('mobile-cart-badge').innerText = totalQty;
+            document.getElementById('cart-items-count').innerText = `${totalQty} itens adicionados`;
+
+            // Atualiza Lista de Itens no Drawer
+            const itemsList = document.getElementById('cart-items-list');
+
+            if (cart.length === 0) {
+                itemsList.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-2 opacity-40"></i>
+                        <p class="text-sm font-semibold">Seu carrinho está vazio.</p>
+                        <p class="text-xs text-gray-600 mt-1">Adicione itens do mercado para continuar.</p>
+                    </div>
+                `;
+            } else {
+                itemsList.innerHTML = cart.map(item => `
+                    <div class="bg-gray-800/80 border border-gray-700/60 rounded-xl p-2.5 flex items-center justify-between gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br ${item.color || 'from-gray-700 to-gray-900'} flex items-center justify-center text-white text-lg shrink-0">
+                            <i class="fa-solid ${item.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h5 class="font-bold text-xs text-white truncate">${item.name}</h5>
+                            <p class="text-[11px] text-gray-400">R$ ${item.price.toFixed(2).replace('.', ',')} un</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-0.5">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="w-6 h-6 bg-gray-800 text-gray-300 hover:text-white rounded text-xs font-bold">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                                <span class="text-xs font-bold text-white px-2">${item.qty}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="w-6 h-6 bg-pirate-red text-white rounded text-xs font-bold">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Atualiza Totais
+            const isDelivery = document.querySelector('input[name="delivery_type"]:checked').value === 'delivery';
+            const deliveryFee = isDelivery && cart.length > 0 ? 5.00 : 0.00;
+            const finalTotal = subtotal + deliveryFee;
+
+            document.getElementById('cart-subtotal').innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('cart-delivery-fee').innerText = isDelivery ? `R$ ${deliveryFee.toFixed(2).replace('.', ',')}` : 'Grátis (Retirada)';
+            document.getElementById('cart-final-total').innerText = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('mobile-cart-total').innerText = `R$ ${finalTotal.toFixed(2).replace('.', ',')}`;
+        }
+
+        // Alternar Visualização do Carrinho
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const panel = document.getElementById('cart-panel');
+            
+            const isOpen = !drawer.classList.contains('pointer-events-none');
+
+            if (isOpen) {
+                panel.classList.add('translate-x-full');
+                drawer.classList.add('opacity-0', 'pointer-events-none');
+            } else {
+                drawer.classList.remove('opacity-0', 'pointer-events-none');
+                panel.classList.remove('translate-x-full');
+            }
+        }
+
+        function updateDeliveryOption() {
+            const isDelivery = document.querySelector('input[name="delivery_type"]:checked').value === 'delivery';
+            const addressContainer = document.getElementById('address-container');
+            const deliveryFeeRow = document.getElementById('delivery-fee-row');
+
+            // Atualizar classes visuais dos botões de rádio
+            document.querySelectorAll('.delivery-option-label').forEach(label => {
+                const input = label.querySelector('input');
+                if (input.checked) {
+                    label.className = "delivery-option-label border border-pirate-red bg-pirate-red/10 text-white rounded-xl p-2 text-center text-xs font-bold cursor-pointer transition flex items-center justify-center gap-1.5";
+                } else {
+                    label.className = "delivery-option-label border border-gray-700 bg-gray-800 text-gray-400 rounded-xl p-2 text-center text-xs font-bold cursor-pointer transition flex items-center justify-center gap-1.5";
+                }
+            });
+
+            if (isDelivery) {
+                addressContainer.classList.remove('hidden');
+                deliveryFeeRow.classList.remove('hidden');
+            } else {
+                addressContainer.classList.add('hidden');
+                deliveryFeeRow.classList.add('hidden');
+            }
+
+            updateCartUI();
+        }
+
+        function handlePaymentChange() {
+            const method = document.getElementById('payment-method').value;
+            const changeContainer = document.getElementById('change-container');
+
+            if (method === 'Dinheiro') {
+                changeContainer.classList.remove('hidden');
+            } else {
+                changeContainer.classList.add('hidden');
+            }
+        }
+
+        // =========================================================================
+        // FINALIZAÇÃO DE PEDIDO & INTEGRAÇÃO WHATSAPP
+        // =========================================================================
+        function finishOrder() {
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio! Adicione produtos antes de finalizar.');
+                return;
+            }
+
+            const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
+            const address = document.getElementById('delivery-address').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            const cashChange = document.getElementById('cash-change').value;
+
+            if (deliveryType === 'delivery' && !address.trim()) {
+                alert('Por favor, informe seu endereço completo para a entrega.');
+                document.getElementById('delivery-address').focus();
+                return;
+            }
+
+            if (!paymentMethod) {
+                alert('Por favor, selecione uma forma de pagamento (Pluxee, Ticket, PIX, etc.).');
+                document.getElementById('payment-method').focus();
+                return;
+            }
+
+            // Montagem da mensagem formatada para WhatsApp
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const deliveryFee = deliveryType === 'delivery' ? 5.00 : 0.00;
+            const total = subtotal + deliveryFee;
+
+            let msg = `🏴‍☠️ *NOVO PEDIDO - MERCEARIA NOGUEIRA (JC PIRATES)* 🏴‍☠️\n\n`;
+            msg += `📋 *ITENS DO PEDIDO:*\n`;
+
+            cart.forEach(item => {
+                msg += `▪️ ${item.qty}x ${item.name} - R$ ${(item.price * item.qty).toFixed(2).replace('.', ',')}\n`;
+            });
+
+            msg += `\n💵 *RESUMO FINANCEIRO:*\n`;
+            msg += `Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+            msg += `Entrega: ${deliveryType === 'delivery' ? `R$ ${deliveryFee.toFixed(2).replace('.', ',')}` : 'Retirada na Loja'}\n`;
+            msg += `*TOTAL FINAL: R$ ${total.toFixed(2).replace('.', ',')}*\n\n`;
+
+            msg += `🛵 *FORMA DE ENVIO:* ${deliveryType === 'delivery' ? 'Entrega/Delivery' : 'Retirar no Balcão'}\n`;
+            if (deliveryType === 'delivery') {
+                msg += `📍 *Endereço:* ${address}\n`;
+            }
+
+            msg += `💳 *PAGAMENTO:* ${paymentMethod}\n`;
+            if (paymentMethod === 'Dinheiro' && cashChange) {
+                msg += `🪙 *Troco para:* ${cashChange}\n`;
+            }
+
+            msg += `\n--- Pedido gerado via App Web ---\nObrigado pela preferência!`;
+
+            // Grava o pedido no histórico simulado para o Painel Gerencial
+            const orderId = 'ORD-' + Math.floor(1000 + Math.random() * 9000);
+            simulatedOrders.unshift({
+                id: orderId,
+                date: 'Agora mesmo',
+                client: deliveryType === 'delivery' ? address.substring(0, 25) + '...' : 'Retirada em Loja',
+                total: `R$ ${total.toFixed(2).replace('.', ',')}`,
+                payment: paymentMethod,
+                items: cart.map(i => `${i.qty}x ${i.name}`).join(', '),
+                status: 'Pendente'
+            });
+
+            saveData();
+            renderAdminOrders();
+
+            // Abre o WhatsApp com a mensagem pré-formatada
+            const phone = "5541999998888"; // Número fictício do comerciante JC Pirates
+            const encodedMsg = encodeURIComponent(msg);
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodedMsg}`;
+
+            // Resetar Carrinho
+            cart = [];
+            saveData();
+            updateCartUI();
+            renderProducts();
+            toggleCartDrawer();
+
+            showToast("Redirecionando para o WhatsApp da Loja...");
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // =========================================================================
+        // MODO GERENCIAL (PAINEL DO CAIXA)
+        // =========================================================================
+        function toggleAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function switchAdminTab(tab) {
+            const btnProducts = document.getElementById('tab-btn-products');
+            const btnOrders = document.getElementById('tab-btn-orders');
+            const tabProducts = document.getElementById('admin-tab-products');
+            const tabOrders = document.getElementById('admin-tab-orders');
+
+            if (tab === 'products') {
+                btnProducts.className = "flex-1 py-3 px-4 text-pirate-red border-b-2 border-pirate-red flex items-center justify-center gap-2 transition";
+                btnOrders.className = "flex-1 py-3 px-4 text-gray-400 hover:text-gray-200 flex items-center justify-center gap-2 transition";
+                tabProducts.classList.remove('hidden');
+                tabOrders.classList.add('hidden');
+            } else {
+                btnOrders.className = "flex-1 py-3 px-4 text-pirate-red border-b-2 border-pirate-red flex items-center justify-center gap-2 transition";
+                btnProducts.className = "flex-1 py-3 px-4 text-gray-400 hover:text-gray-200 flex items-center justify-center gap-2 transition";
+                tabOrders.classList.remove('hidden');
+                tabProducts.classList.add('hidden');
+            }
+        }
+
+        function renderAdminProducts() {
+            const container = document.getElementById('admin-products-list');
+            container.innerHTML = products.map(p => `
+                <div class="bg-gray-800 p-2.5 rounded-xl border border-gray-700 flex items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <i class="fa-solid ${p.icon} text-pirate-red text-base"></i>
+                        <div class="truncate">
+                            <span class="font-bold text-white block truncate">${p.name}</span>
+                            <span class="text-[10px] text-gray-400">EAN: ${p.ean}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">R$</span>
+                        <input type="number" step="0.10" value="${p.price.toFixed(2)}" 
+                               onchange="updateProductPrice('${p.id}', this.value)"
+                               class="w-20 bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 text-emerald-400 font-bold text-right focus:outline-none focus:border-pirate-red">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateProductPrice(productId, newPrice) {
+            const val = parseFloat(newPrice);
+            if (isNaN(val) || val <= 0) return;
+
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.price = val;
+                saveData();
+                renderProducts();
+                showToast(`Preço de "${product.name.substring(0, 15)}" atualizado!`);
+            }
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-list');
+            if (simulatedOrders.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 text-center py-6">Nenhum pedido recebido ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = simulatedOrders.map(ord => `
+                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 space-y-1 text-xs">
+                    <div class="flex justify-between font-bold text-white">
+                        <span class="text-pirate-gold">${ord.id} (${ord.date})</span>
+                        <span class="text-emerald-400">${ord.total}</span>
+                    </div>
+                    <div class="text-gray-300 font-medium">Forma: ${ord.payment}</div>
+                    <div class="text-gray-400 truncate">Itens: ${ord.items}</div>
+                </div>
+            `).join('');
+        }
+
+        function clearSimulatedOrders() {
+            simulatedOrders = [];
+            saveData();
+            renderAdminOrders();
+        }
+
+        // =========================================================================
+        // NOTIFICAÇÃO TOAST
+        // =========================================================================
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+
+            toast.classList.remove('translate-x-72', 'opacity-0');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-x-72', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
